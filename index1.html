@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Love Math</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.min.js"></script>
+    <script defer src="main.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Favicons -->
+    <link href="23.jpg" rel="icon">
+    <link href="23.jpg" rel="apple-touch-icon">
+</head>
+<body>
+<svg width="800" height="600"></svg>
+<script>
+    const svg = d3.select("svg"),
+        margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear().range([0, width]);
+    const y = d3.scaleLinear().range([height, 0]);
+
+    const line = d3.line()
+        .x(d => x(d.x))
+        .y(d => y(d.y));
+
+    const xAxis = g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .attr("class", "axis")
+        .call(d3.axisBottom(x));
+
+    const yAxis = g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y));
+
+    const path = g.append("path")
+        .attr("class", "line");
+
+    const frameText = svg.append("text")
+        .attr("class", "frame-text")
+        .attr("x", width / 2 + margin.left)
+        .attr("y", 30);
+
+    svg.append("text")
+        .attr("class", "title")
+        .attr("x", width / 2 + margin.left)
+        .attr("y", margin.top + margin.top +margin.bottom)
+        .text('LOVE(x) = x^(2/3) + (e/3) * sqrt(pi - x^2) * sin(a*pi*x)');
+
+    // Initial data generation
+    const pi = Math.PI, e = Math.E, sqrt = Math.sqrt;
+    const data = d3.range(-sqrt(pi), sqrt(pi), 0.01).map(x => ({x}));
+
+    x.domain([-2, 2]);
+    y.domain([-1.5, 3]);
+
+    let frame = 0;
+
+    function update() {
+        frame += 1;
+        const a = frame / 10;
+        data.forEach(d => {
+            d.y = Math.pow(Math.pow(d.x, 2), 1 / 3) + e / 3 * sqrt(pi - Math.pow(d.x, 2)) * Math.sin(a * pi * d.x);
+        });
+        path.datum(data)
+            .attr("d", line);
+        frameText.text(`a = ${a.toFixed(1)}`);
+
+        if (frame <= 300) {
+            setTimeout(() => {
+                requestAnimationFrame(update);
+            }, 78); // Delay of 50 milliseconds for each frame
+        }
+    }
+
+    update();
+</script>
+<!-- Autoplay audio -->
+<audio src="24.mp3" autoplay></audio>
+</html>
